@@ -13,6 +13,7 @@ const app = express();
 const allowedOrigins = [
     'http://localhost:5173',
     'https://sterling-wren-modern.ngrok-free.app',
+    'https://simple-e-commerce-dt4ircds5-lyc-ns-projects.vercel.app'
 ];
 
 app.use(
