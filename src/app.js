@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 
 const authRoutes = require('./routes/authRoutes');
 const midtransRoutes = require('./routes/midtransRoutes');
+const productRoutes = require('./routes/productRoutes');
 
 dotenv.config();
 
@@ -28,5 +29,6 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/midtrans', midtransRoutes);
+app.use('/api/products', productRoutes);
 
 module.exports = app;
