@@ -41,7 +41,7 @@ const products = Array.from({ length: 30 }).map(
                 `Keripik kentang premium varian ke-${productNumber} ` +
                 `dengan rasa gurih dan tekstur renyah khas Chitato.`,
 
-            imageUrl: `/src/assets/${thumbNailUrl[index % thumbNailUrl.length]}`,
+            imageUrl: `/assets/${thumbNailUrl[index % thumbNailUrl.length]}`,
 
             variants: flavors.map((flavor) => ({
                 name: `${flavor} Edition`,

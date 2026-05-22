@@ -10,6 +10,7 @@ const productRoutes = require('./routes/productRoutes');
 dotenv.config();
 
 const app = express();
+const path = require('path');
 
 app.use(
     cors({
@@ -17,6 +18,8 @@ app.use(
         credentials: true,
     })
 );
+
+app.use('/assets', express.static(path.join(__dirname, '../assets')));
 
 app.use(express.json());
 app.use(cookieParser());
