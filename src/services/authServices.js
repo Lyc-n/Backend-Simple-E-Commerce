@@ -1,7 +1,5 @@
 const bcrypt = require('bcryptjs');
-const { randomUUID } = require('crypto');
-
-const { readUsers, writeUsers } = require('../utils/usersStore');
+const prisma = require('../config/prisma');
 const { generateToken } = require('../utils/jwt');
 
 async function registerUser(payload) {
@@ -31,35 +29,29 @@ async function registerUser(payload) {
         throw new Error('Password minimal 8 karakter');
     }
 
-    const users = await readUsers();
+    const existingUser = await prisma.user.findFirst({
+        where: {
+            OR: [
+                { email: email.toLowerCase() },
+                { username: username.toLowerCase() },
+            ],
+        },
+    });
 
-    const emailLower = email.toLowerCase();
-    const usernameLower = username.toLowerCase();
-
-    const exists = users.some(
-        (user) =>
-            user.email.toLowerCase() === emailLower ||
-            user.username.toLowerCase() === usernameLower
-    );
-
-    if (exists) {
+    if (existingUser) {
         throw new Error('Email atau username sudah dipakai');
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const newUser = {
-        id: randomUUID(),
-        name,
-        username,
-        email,
-        passwordHash,
-        createdAt: new Date().toISOString(),
-    };
-
-    users.push(newUser);
-
-    await writeUsers(users);
+    const newUser = await prisma.user.create({
+        data: {
+            name,
+            username: username.toLowerCase(),
+            email: email.toLowerCase(),
+            password: passwordHash,
+        },
+    });
 
     const token = generateToken(newUser);
 
@@ -76,21 +68,22 @@ async function loginUser(payload) {
         throw new Error('Email/username dan password wajib diisi');
     }
 
-    const users = await readUsers();
-
     const identityLower = identity.toLowerCase();
 
-    const user = users.find(
-        (u) =>
-            u.email.toLowerCase() === identityLower ||
-            u.username.toLowerCase() === identityLower
-    );
+    const user = await prisma.user.findFirst({
+        where: {
+            OR: [
+                { email: identityLower },
+                { username: identityLower },
+            ],
+        },
+    });
 
     if (!user) {
         throw new Error('User tidak ditemukan');
     }
 
-    const valid = await bcrypt.compare(password, user.passwordHash);
+    const valid = await bcrypt.compare(password, user.password);
 
     if (!valid) {
         throw new Error('Password salah');
@@ -105,7 +98,7 @@ async function loginUser(payload) {
 }
 
 function sanitizeUser(user) {
-    const { passwordHash, ...safeUser } = user;
+    const { password, ...safeUser } = user;
 
     return safeUser;
 }

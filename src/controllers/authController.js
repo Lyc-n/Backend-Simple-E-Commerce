@@ -3,9 +3,7 @@ const {
     loginUser,
 } = require('../services/authServices');
 
-const { readUsers } = require('../utils/usersStore');
-
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const prisma = require('../config/prisma');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -13,7 +11,6 @@ const COOKIE_OPTIONS = {
     httpOnly: true,
     secure: isProduction,
     sameSite: 'none',
-
     maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
@@ -61,11 +58,11 @@ async function login(req, res) {
 
 async function me(req, res) {
     try {
-        const users = await readUsers();
-
-        const user = users.find(
-            (u) => u.id === req.auth.sub
-        );
+        const user = await prisma.user.findUnique({
+            where: {
+                id: req.auth.sub,
+            },
+        });
 
         if (!user) {
             return res.status(404).json({
@@ -73,7 +70,7 @@ async function me(req, res) {
             });
         }
 
-        const { passwordHash, ...safeUser } = user;
+        const { password, ...safeUser } = user;
 
         return res.json({
             user: safeUser,
@@ -88,8 +85,8 @@ async function me(req, res) {
 function logout(req, res) {
     res.clearCookie('auth_token', {
         httpOnly: true,
-        sameSite: COOKIE_OPTIONS.sameSite,
         secure: COOKIE_OPTIONS.secure,
+        sameSite: COOKIE_OPTIONS.sameSite,
     });
 
     return res.json({
