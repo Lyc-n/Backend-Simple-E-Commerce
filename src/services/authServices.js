@@ -103,7 +103,31 @@ function sanitizeUser(user) {
     return safeUser;
 }
 
+async function updateProfile(userId, payload) {
+    const {
+        fullName,
+        phone,
+        address,
+        bio,
+    } = payload;
+
+    const updatedUser = await prisma.user.update({
+        where: {
+            id: userId,
+        },
+        data: {
+            name: fullName,
+            number: phone,
+            address,
+            bio,
+        },
+    });
+
+    return sanitizeUser(updatedUser);
+}
+
 module.exports = {
     registerUser,
     loginUser,
+    updateProfile
 };

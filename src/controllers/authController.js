@@ -1,6 +1,7 @@
 const {
     registerUser,
     loginUser,
+    updateProfile,
 } = require('../services/authServices');
 
 const prisma = require('../config/prisma');
@@ -94,9 +95,28 @@ function logout(req, res) {
     });
 }
 
+async function updateMyProfile(req, res) {
+    try {
+        const user = await updateProfile(
+            req.auth.sub,
+            req.body
+        );
+
+        return res.json({
+            message: 'Profile berhasil diupdate',
+            user,
+        });
+    } catch (error) {
+        return res.status(400).json({
+            message: error.message,
+        });
+    }
+}
+
 module.exports = {
     register,
     login,
     me,
     logout,
+    updateMyProfile,
 };
