@@ -30,6 +30,10 @@ model Product {
   slug        String           @unique
   description String?
   imageUrl    String?
+  tag         String?
+  tagColor    String?
+  basePrice   Int?
+
   createdAt   DateTime         @default(now())
 
   variants    ProductVariant[]
