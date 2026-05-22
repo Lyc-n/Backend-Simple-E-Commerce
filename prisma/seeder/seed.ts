@@ -18,9 +18,15 @@ const flavors = [
     'Original',
     'Spicy',
     'Nori',
-    'Beef BBQ',
+    'Beef',
     'Cheese',
     'Balado',
+];
+
+const thumbNailUrl = [
+    'ayamBumbu.png',
+    'kejuSupreme.png',
+    'sapiPanggang.png',
 ];
 
 const products = Array.from({ length: 30 }).map(
@@ -35,8 +41,7 @@ const products = Array.from({ length: 30 }).map(
                 `Keripik kentang premium varian ke-${productNumber} ` +
                 `dengan rasa gurih dan tekstur renyah khas Chitato.`,
 
-            imageUrl:
-                `https://picsum.photos/seed/chitato-${productNumber}/600/600`,
+            imageUrl: `/src/assets/${thumbNailUrl[index % thumbNailUrl.length]}`,
 
             variants: flavors.map((flavor) => ({
                 name: `${flavor} Edition`,
