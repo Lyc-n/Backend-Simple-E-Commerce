@@ -20,5 +20,6 @@ model User {
   password  String
   number    String?
   address   String?
+  bio       String?
   createdAt DateTime @default(now())
 }
