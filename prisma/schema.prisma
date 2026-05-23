@@ -21,6 +21,8 @@ model User {
   number    String?
   address   String?
   bio       String?
+
+  cartItems CartItem[]
   createdAt DateTime @default(now())
 }
 
@@ -61,6 +63,21 @@ model VariantSize {
 
   variantId   String
   variant     ProductVariant  @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  cartItems    CartItem[]
+
+  createdAt   DateTime        @default(now())
+}
+
+model CartItem {
+  id        String          @id @default(cuid())
+  quantity  Int             @default(1)
+
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  variantSizeId String
+  variantSize   VariantSize    @relation(fields: [variantSizeId], references: [id], onDelete: Cascade)
 
   createdAt   DateTime        @default(now())
 }

@@ -30,7 +30,7 @@ const thumbnailUrl = [
 
 const tagPool = ['New', 'Hot', 'Sale', 'Best Seller', null];
 
-const tagColorPool = ['primary', 'emerald-400', 'secondary-fixed'];
+const tagColorPool = ['primary', 'secondary-fixed'];
 
 const products = Array.from({ length: 30 }).map((_, index) => {
     const productNumber = index + 1;
