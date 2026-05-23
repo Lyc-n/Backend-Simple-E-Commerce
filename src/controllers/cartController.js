@@ -3,7 +3,7 @@ const {
     getCartByUser,
     updateCartItem,
     removeFromCart,
-} = require('../services/cartService');
+} = require('../services/cartServices');
 
 function mapCart(items) {
     return items.map((item) => {
