@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const prisma = require('../config/prisma');
 const { generateToken } = require('../utils/jwt');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 function generateAccessToken(user) {
     return jwt.sign(
@@ -77,17 +79,6 @@ async function registerUser(payload) {
 async function loginUser(payload) {
     const { identity, password } = payload;
 
-    const expiresAt = new Date();
-    expiresAt.setMonth(expiresAt.getMonth() + 3);
-
-    await prisma.session.create({
-        data: {
-            userId: user.id,
-            token: refreshToken,
-            expiresAt,
-        },
-    });
-
     if (!identity || !password) {
         throw new Error('Email/username dan password wajib diisi');
     }
@@ -112,12 +103,25 @@ async function loginUser(payload) {
     if (!valid) {
         throw new Error('Password salah');
     }
+
+    // generate tokens
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken();
-    // const token = generateToken(user);
+
+    // expires 3 bulan
+    const expiresAt = new Date();
+    expiresAt.setMonth(expiresAt.getMonth() + 3);
+
+    // simpan session ke DB
+    await prisma.session.create({
+        data: {
+            userId: user.id,
+            token: refreshToken,
+            expiresAt,
+        },
+    });
 
     return {
-        // token,
         user: sanitizeUser(user),
         accessToken,
         refreshToken,
