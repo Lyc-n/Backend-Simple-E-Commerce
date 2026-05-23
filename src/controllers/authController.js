@@ -42,12 +42,16 @@ async function login(req, res) {
 
         res.cookie('accessToken', result.accessToken, {
             httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000, // 1 hari
+            secure: true,
+            sameSite: 'none',
+            maxAge: 24 * 60 * 60 * 1000,
         });
 
         res.cookie('refreshToken', result.refreshToken, {
             httpOnly: true,
-            maxAge: 90 * 24 * 60 * 60 * 1000, // 3 bulan
+            secure: true,
+            sameSite: 'none',
+            maxAge: 90 * 24 * 60 * 60 * 1000,
         });
 
         res.json({
