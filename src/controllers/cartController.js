@@ -39,7 +39,7 @@ async function getCartHandler(req, res) {
     try {
         const userId = req.userId;
 
-        const items = await getCartItems(userId);
+        const items = await getCartByUser(userId);
 
         return res.json({
             items,
