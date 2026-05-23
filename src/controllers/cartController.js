@@ -24,7 +24,8 @@ function mapCart(items) {
 
 async function addToCartHandler(req, res) {
     try {
-        const { userId, variantSizeId, quantity } = req.userId.body;
+        const userId = req.userId;
+        const { userId, variantSizeId, quantity } = req.userId;
 
         const result = await addToCart(userId, variantSizeId, quantity);
 
