@@ -10,14 +10,27 @@ async function addToCart(userId, variantSizeId, quantity) {
     });
 }
 
-async function getCartItems(userId) {
+async function getCartByUser(userId) {
     return await prisma.cartItem.findMany({
         where: { userId },
         include: {
             variantSize: {
-                include: { variant: true },
+                include: {
+                    variant: {
+                        include: {
+                            product: true,
+                        },
+                    },
+                },
             },
         },
+    });
+}
+
+async function updateCartItem(cartItemId, quantity) {
+    return await prisma.cartItem.update({
+        where: { id: cartItemId },
+        data: { quantity },
     });
 }
 
@@ -29,6 +42,7 @@ async function removeFromCart(cartItemId) {
 
 module.exports = {
     addToCart,
-    getCartItems,
+    getCartByUser,
+    updateCartItem,
     removeFromCart,
 };

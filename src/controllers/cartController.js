@@ -1,41 +1,81 @@
 const {
     addToCart,
-    getCartItems,
+    getCartByUser,
+    updateCartItem,
     removeFromCart,
-} = require('../services/cartServices');
+} = require('../services/cartService');
 
-export async function addToCartHandler(req, res) {
+function mapCart(items) {
+    return items.map((item) => {
+        const product = item.variantSize.variant.product;
+
+        return {
+            id: item.id,
+            productName: product.name,
+            imageUrl: product.imageUrl,
+            flavor: item.variantSize.variant.flavor,
+            size: item.variantSize.size,
+            price: item.variantSize.price,
+            quantity: item.quantity,
+            subtotal: item.quantity * item.variantSize.price,
+        };
+    });
+}
+
+async function addToCartHandler(req, res) {
     try {
         const { userId, variantSizeId, quantity } = req.body;
 
-        const cartItem = await addToCart(userId, variantSizeId, quantity);
+        const result = await addToCart(userId, variantSizeId, quantity);
 
-        return res.status(201).json(cartItem);
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
+        res.status(201).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 }
 
-export async function getCartItemsHandler(req, res) {
+async function getCartHandler(req, res) {
     try {
         const { userId } = req.params;
 
-        const items = await getCartItems(userId);
+        const items = await getCartByUser(userId);
 
-        return res.json(items);
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
+        res.json({
+            items: mapCart(items),
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 }
 
-export async function removeFromCartHandler(req, res) {
+async function updateCartHandler(req, res) {
+    try {
+        const { cartItemId } = req.params;
+        const { quantity } = req.body;
+
+        const updated = await updateCartItem(cartItemId, quantity);
+
+        res.json(updated);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+async function removeCartHandler(req, res) {
     try {
         const { cartItemId } = req.params;
 
         await removeFromCart(cartItemId);
 
-        return res.json({ message: 'Deleted' });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
+        res.json({ message: 'Deleted' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 }
+
+module.exports = {
+    addToCartHandler,
+    getCartHandler,
+    updateCartHandler,
+    removeCartHandler,
+};
