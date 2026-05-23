@@ -1,4 +1,4 @@
-const prisma = require('../prisma/client');
+const prisma = require('../config/prisma');
 
 async function addToCart(userId, variantSizeId, quantity) {
     return await prisma.cartItem.create({
