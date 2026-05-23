@@ -2,6 +2,19 @@ const bcrypt = require('bcryptjs');
 const prisma = require('../config/prisma');
 const { generateToken } = require('../utils/jwt');
 
+function generateAccessToken(user) {
+    return jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+    );
+}
+
+function generateRefreshToken() {
+    return crypto.randomBytes(40).toString('hex');
+}
+
+
 async function registerUser(payload) {
     const {
         name,
@@ -62,7 +75,20 @@ async function registerUser(payload) {
 }
 
 async function loginUser(payload) {
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken();
     const { identity, password } = payload;
+
+    const expiresAt = new Date();
+    expiresAt.setMonth(expiresAt.getMonth() + 3);
+
+    await prisma.session.create({
+        data: {
+            userId: user.id,
+            token: refreshToken,
+            expiresAt,
+        },
+    });
 
     if (!identity || !password) {
         throw new Error('Email/username dan password wajib diisi');
@@ -89,11 +115,13 @@ async function loginUser(payload) {
         throw new Error('Password salah');
     }
 
-    const token = generateToken(user);
+    // const token = generateToken(user);
 
     return {
-        token,
+        // token,
         user: sanitizeUser(user),
+        accessToken,
+        refreshToken,
     };
 }
 

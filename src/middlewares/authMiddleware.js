@@ -6,7 +6,7 @@ function authMiddleware(req, res, next) {
             ? req.headers.authorization.slice(7)
             : null;
 
-        const token = req.cookies.auth_token || bearer;
+        const token = req.cookies.accessToken || bearer;
 
         if (!token) {
             return res.status(401).json({
@@ -14,11 +14,14 @@ function authMiddleware(req, res, next) {
             });
         }
 
-        const decoded = verifyToken(token);
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            req.userId = decoded.userId;
+            next();
+        } catch (err) {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
 
-        req.auth = decoded;
-
-        next();
     } catch (error) {
         return res.status(401).json({
             message: 'Token tidak valid',

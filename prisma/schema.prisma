@@ -22,6 +22,7 @@ model User {
   address   String?
   bio       String?
 
+  sessions Session[]
   cartItems CartItem[]
   createdAt DateTime @default(now())
 }
@@ -80,4 +81,15 @@ model CartItem {
   variantSize   VariantSize    @relation(fields: [variantSizeId], references: [id], onDelete: Cascade)
 
   createdAt   DateTime        @default(now())
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  token      String   @unique
+  expiresAt  DateTime
+
+  createdAt  DateTime @default(now())
 }

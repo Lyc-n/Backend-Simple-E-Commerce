@@ -40,20 +40,32 @@ async function login(req, res) {
     try {
         const result = await loginUser(req.body);
 
-        res.cookie(
-            'auth_token',
-            result.token,
-            COOKIE_OPTIONS
-        );
+        res.cookie('accessToken', result.accessToken, {
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000, // 1 hari
+        });
+
+        res.cookie('refreshToken', result.refreshToken, {
+            httpOnly: true,
+            maxAge: 90 * 24 * 60 * 60 * 1000, // 3 bulan
+        });
+
+        res.json({
+            message: 'Login success',
+        });
+
+        // res.cookie(
+        //     'auth_token',
+        //     result.token,
+        //     COOKIE_OPTIONS
+        // );
 
         return res.json({
             message: 'Login berhasil',
             user: result.user,
         });
     } catch (error) {
-        return res.status(400).json({
-            message: error.message,
-        });
+        return res.status(500).json({message: error.message,});
     }
 }
 
@@ -113,10 +125,40 @@ async function updateMyProfile(req, res) {
     }
 }
 
+async function refreshToken(req, res) {
+    try {
+        const { refreshToken } = req.cookies;
+
+        const session = await prisma.session.findUnique({
+            where: { token: refreshToken },
+        });
+
+        if (!session || session.expiresAt < new Date()) {
+            return res.status(401).json({ message: 'Invalid session' });
+        }
+
+        const newAccessToken = jwt.sign(
+            { userId: session.userId },
+            process.env.JWT_SECRET,
+            { expiresIn: '1d' }
+        );
+
+        res.cookie('accessToken', newAccessToken, {
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000,
+        });
+
+        res.json({ message: 'Token refreshed' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
 module.exports = {
     register,
     login,
     me,
+    refreshToken,
     logout,
     updateMyProfile,
 };
