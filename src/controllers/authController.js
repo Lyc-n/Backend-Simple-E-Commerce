@@ -5,6 +5,7 @@ const {
 } = require('../services/authServices');
 
 const prisma = require('../config/prisma');
+const jwt = require('jsonwebtoken');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -54,9 +55,9 @@ async function login(req, res) {
             maxAge: 90 * 24 * 60 * 60 * 1000,
         });
 
-        res.json({
-            message: 'Login success',
-        });
+        // res.json({
+        //     message: 'Login success',
+        // });
 
         // res.cookie(
         //     'auth_token',
@@ -77,7 +78,7 @@ async function me(req, res) {
     try {
         const user = await prisma.user.findUnique({
             where: {
-                id: req.auth.sub,
+                id: req.userId,
             },
         });
 
@@ -114,7 +115,7 @@ function logout(req, res) {
 async function updateMyProfile(req, res) {
     try {
         const user = await updateProfile(
-            req.auth.sub,
+            req.userId,
             req.body
         );
 
