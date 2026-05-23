@@ -75,8 +75,6 @@ async function registerUser(payload) {
 }
 
 async function loginUser(payload) {
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken();
     const { identity, password } = payload;
 
     const expiresAt = new Date();
@@ -114,7 +112,8 @@ async function loginUser(payload) {
     if (!valid) {
         throw new Error('Password salah');
     }
-
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken();
     // const token = generateToken(user);
 
     return {
