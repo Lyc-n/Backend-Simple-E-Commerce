@@ -1,4 +1,4 @@
-const { verifyToken } = require('../utils/jwt');
+const jwt = require('jsonwebtoken');
 
 function authMiddleware(req, res, next) {
     try {
@@ -14,14 +14,14 @@ function authMiddleware(req, res, next) {
             });
         }
 
-        try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.userId = decoded.userId;
-            next();
-        } catch (err) {
-            return res.status(401).json({ message: 'Invalid token' });
-        }
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
 
+        req.userId = decoded.userId;
+
+        next();
     } catch (error) {
         return res.status(401).json({
             message: 'Token tidak valid',
