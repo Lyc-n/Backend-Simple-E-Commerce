@@ -25,9 +25,15 @@ function mapCart(items) {
 async function addToCartHandler(req, res) {
     try {
         const userId = req.userId;
-        const { variantSizeId, quantity } = req.userId;
+        const { variantSizeId, quantity } = req.body;
 
-        const result = await addToCart(userId, variantSizeId, quantity);
+        if (!variantSizeId) {
+            return res.status(400).json({
+                message: 'Variant size wajib diisi',
+            });
+        }
+
+        const result = await addToCart(userId, variantSizeId, quantity || 1);
 
         res.status(201).json(result);
     } catch (err) {
