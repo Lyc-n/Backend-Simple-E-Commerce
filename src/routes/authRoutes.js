@@ -16,7 +16,7 @@ router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', logout);
 
-router.get('/profile', authMiddleware);
+router.get('/profile', authMiddleware, me);
 router.get('/me', authMiddleware, me);
 
 router.put('/profile', authMiddleware, updateMyProfile );

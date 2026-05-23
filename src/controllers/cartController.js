@@ -24,7 +24,7 @@ function mapCart(items) {
 
 async function addToCartHandler(req, res) {
     try {
-        const { userId, variantSizeId, quantity } = req.body;
+        const { userId, variantSizeId, quantity } = req.userId.body;
 
         const result = await addToCart(userId, variantSizeId, quantity);
 
@@ -36,15 +36,17 @@ async function addToCartHandler(req, res) {
 
 async function getCartHandler(req, res) {
     try {
-        const { userId } = req.params;
+        const userId = req.userId;
 
-        const items = await getCartByUser(userId);
+        const items = await getCartItems(userId);
 
-        res.json({
-            items: mapCart(items),
+        return res.json({
+            items,
         });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message,
+        });
     }
 }
 
