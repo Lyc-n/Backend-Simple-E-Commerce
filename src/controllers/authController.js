@@ -20,11 +20,19 @@ async function register(req, res) {
     try {
         const result = await registerUser(req.body);
 
-        res.cookie(
-            'auth_token',
-            result.token,
-            COOKIE_OPTIONS
-        );
+        res.cookie('accessToken', result.accessToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+            maxAge: 24 * 60 * 60 * 1000,
+        });
+
+        res.cookie('refreshToken', result.refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+            maxAge: 90 * 24 * 60 * 60 * 1000,
+        });
 
         return res.status(201).json({
             message: 'Register berhasil',

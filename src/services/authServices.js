@@ -68,11 +68,21 @@ async function registerUser(payload) {
         },
     });
 
-    const token = generateToken(newUser);
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken();
+
+    await prisma.session.create({
+        data: {
+            userId: user.id,
+            token: refreshToken,
+            expiresAt,
+        },
+    });
 
     return {
-        token,
         user: sanitizeUser(newUser),
+        accessToken,
+        refreshToken
     };
 }
 
